@@ -21,6 +21,7 @@ func keyValuePutHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
+	logger.WritePut(key, string(value))
 }
 
 func keyValueDeleteHandler(w http.ResponseWriter, r *http.Request) {
@@ -31,6 +32,7 @@ func keyValueDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+	logger.WriteDelete(key)
 }
 
 func keyValueGetHandler(w http.ResponseWriter, r *http.Request) {
@@ -49,6 +51,10 @@ func keyValueGetHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	if err := initializeTransactionLog(); err != nil {
+		panic(err)
+	}
+
 	r := mux.NewRouter()
 	r.HandleFunc("/v1/{key}", keyValuePutHandler).Methods(http.MethodPut)
 	r.HandleFunc("/v1/{key}", keyValueDeleteHandler).Methods(http.MethodDelete)
