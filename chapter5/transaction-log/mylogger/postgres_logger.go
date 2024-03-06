@@ -1,4 +1,4 @@
-package main
+package mylogger
 
 import (
 	"database/sql"

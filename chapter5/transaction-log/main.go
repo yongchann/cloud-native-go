@@ -8,6 +8,19 @@ import (
 	"net/http"
 )
 
+func main() {
+	if err := initializeTransactionLog(); err != nil {
+		panic(err)
+	}
+
+	r := mux.NewRouter()
+	r.HandleFunc("/v1/{key}", keyValuePutHandler).Methods(http.MethodPut)
+	r.HandleFunc("/v1/{key}", keyValueDeleteHandler).Methods(http.MethodDelete)
+	r.HandleFunc("/v1/{key}", keyValueGetHandler).Methods(http.MethodGet)
+
+	log.Fatal(http.ListenAndServe(":8080", r))
+}
+
 func keyValuePutHandler(w http.ResponseWriter, r *http.Request) {
 	key := mux.Vars(r)["key"]
 
@@ -48,17 +61,4 @@ func keyValueGetHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write([]byte(value))
-}
-
-func main() {
-	if err := initializeTransactionLog(); err != nil {
-		panic(err)
-	}
-
-	r := mux.NewRouter()
-	r.HandleFunc("/v1/{key}", keyValuePutHandler).Methods(http.MethodPut)
-	r.HandleFunc("/v1/{key}", keyValueDeleteHandler).Methods(http.MethodDelete)
-	r.HandleFunc("/v1/{key}", keyValueGetHandler).Methods(http.MethodGet)
-
-	log.Fatal(http.ListenAndServe(":8080", r))
 }

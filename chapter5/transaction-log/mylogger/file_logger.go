@@ -1,33 +1,9 @@
-package main
+package mylogger
 
 import (
 	"bufio"
 	"fmt"
 	"os"
-)
-
-type TransactionLogger interface {
-	WriteDelete(key string)
-	WritePut(key, value string)
-	Err() <-chan error
-	ReadEvents() (<-chan Event, <-chan error)
-
-	Run()
-}
-
-type Event struct {
-	Sequence  uint64
-	EventType EventType
-	Key       string
-	Value     string
-}
-
-type EventType byte
-
-const (
-	_ = iota
-	EventDelete
-	EventPut
 )
 
 type FileTransactionLogger struct {
@@ -79,12 +55,7 @@ func (l *FileTransactionLogger) ReadEvents() (<-chan Event, <-chan error) {
 
 		for scanner.Scan() {
 			line := scanner.Text()
-			_, err := fmt.Sscanf(line, "%d\t%d\t%s\t%s\n", &e.Sequence, &e.EventType, &e.Key, &e.Value)
-			if err != nil {
-				outError <- fmt.Errorf("input parse error: %w", err)
-				return
-			}
-
+			_, _ = fmt.Sscanf(line, "%d\t%d\t%s\t%s\n", &e.Sequence, &e.EventType, &e.Key, &e.Value)
 			if l.lastSequence >= e.Sequence {
 				outError <- fmt.Errorf("transaction numbers out of sequence")
 				return
